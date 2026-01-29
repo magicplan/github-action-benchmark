@@ -9,7 +9,15 @@ async function main() {
 
     if (config.repoDir) {
         core.info(`Changing working directory to: ${config.repoDir}`);
-        process.chdir(config.repoDir);
+        try {
+            process.chdir(config.repoDir);
+        } catch (err) {
+            throw new Error(
+                `Failed to change working directory to '${config.repoDir}'. ` +
+                    `Please ensure the directory exists and is accessible. ` +
+                    `Original error: ${err instanceof Error ? err.message : err}`,
+            );
+        }
     }
 
     const bench = await extractResult(config);
