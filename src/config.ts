@@ -25,6 +25,7 @@ export interface Config {
     externalDataJsonPath: string | undefined;
     maxItemsInChart: number | null;
     ref: string | undefined;
+    repoDir: string | undefined;
 }
 
 export const VALID_TOOLS = [
@@ -240,6 +241,7 @@ export async function configFromJobInput(): Promise<Config> {
     let externalDataJsonPath: undefined | string = core.getInput('external-data-json-path');
     const maxItemsInChart = getUintInput('max-items-in-chart');
     let failThreshold = getPercentageInput('fail-threshold');
+    const repoDir: string | undefined = core.getInput('repo-dir') || undefined;
 
     validateToolType(tool);
     outputFilePath = await validateOutputFilePath(outputFilePath);
@@ -287,5 +289,6 @@ export async function configFromJobInput(): Promise<Config> {
         maxItemsInChart,
         failThreshold,
         ref,
+        repoDir,
     };
 }

@@ -7,6 +7,11 @@ async function main() {
     const config = await configFromJobInput();
     core.debug(`Config extracted from job: ${config}`);
 
+    if (config.repoDir) {
+        core.info(`Changing working directory to: ${config.repoDir}`);
+        process.chdir(config.repoDir);
+    }
+
     const bench = await extractResult(config);
     core.debug(`Benchmark result was extracted: ${bench}`);
 
