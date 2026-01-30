@@ -98,8 +98,16 @@ function validateGhPagesBranch(branch) {
     }
     throw new Error(`Branch value must not be empty for 'gh-pages-branch' input`);
 }
-function validateBenchmarkDataDirPath(dirPath) {
+function validateBenchmarkDataDirPath(dirPath, repoDir) {
     try {
+        // When repo-dir is set, benchmark-data-dir-path should be relative to repo-dir
+        // because the action will chdir to repo-dir before running writeBenchmark.
+        // Without this, path.relative() in write.ts would produce "../.." paths
+        // that are outside the repository, causing git errors.
+        if (repoDir) {
+            const resolvedRepoDir = resolvePath(repoDir);
+            return path.resolve(resolvedRepoDir, dirPath);
+        }
         return resolvePath(dirPath);
     }
     catch (e) {
@@ -234,7 +242,7 @@ async function configFromJobInput() {
     validateToolType(tool);
     outputFilePath = await validateOutputFilePath(outputFilePath);
     validateGhPagesBranch(ghPagesBranch);
-    benchmarkDataDirPath = validateBenchmarkDataDirPath(benchmarkDataDirPath);
+    benchmarkDataDirPath = validateBenchmarkDataDirPath(benchmarkDataDirPath, repoDir);
     validateName(name);
     if (autoPush) {
         validateGitHubToken('auto-push', githubToken, 'to push GitHub pages branch to remote');
